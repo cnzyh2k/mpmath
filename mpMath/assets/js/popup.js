@@ -30,13 +30,13 @@ function convert() {
     MathJax.texReset();
     let options = MathJax.getMetricsFor(output);
     options.display = block.checked;
-    MathJax.tex2svgPromise(inputTex, options).then(function(node) {
+    MathJax.tex2svgPromise(inputTex, options).then(function (node) {
         output.appendChild(node);
         MathJax.startup.document.clear();
         MathJax.startup.document.updateDocument();
-    }).catch(function(err) {
+    }).catch(function (err) {
         output.appendChild(document.createElement('pre')).appendChild(document.createTextNode(err.message));
-    }).then(function() {
+    }).then(function () {
         inputTex.disabled = false;
     });
 }
@@ -51,16 +51,42 @@ function insertFormula() {
 
     // 将生成的mjx-container套在span中
     let output = document.getElementById('output');
+
+    // 微信公众号的新策略会丢弃 max-width: 300% 这样的修饰
+    // 对于含有 viewBox 的 SVG，我们可以确保它的 width/height 样式或者直接通过包含元素的宽度来撑开
+    let svg = output.querySelector('svg');
+    if (svg) {
+        svg.style.maxWidth = 'none';
+        svg.style.verticalAlign = 'middle';
+    }
+
     let sp = document.createElement('span');
+    sp.setAttribute('style', 'cursor:pointer; display:inline-block;');
+
     if ($(block).prop('checked')) {
-        output.childNodes[0].style = 'overflow-x:auto; outline:0; display:block; text-align: center; margin: 15px 0px;'
+        // Block 级公式（行间公式）
+        sp.style.display = 'block';
+        sp.style.textAlign = 'center';
+        sp.style.margin = '15px 0';
+        sp.style.overflowX = 'auto'; // 允许水平滚动
+
+        // 设置一些微信能兼容的样式
         output.childNodes[0].setAttribute('display', true);
-        output.childNodes[0].childNodes[0].style = 'height:auto; max-width:300% !important;'
+        output.childNodes[0].style.display = 'inline-block';
+        output.childNodes[0].style.lineHeight = 'normal';
+        if (svg) {
+            svg.style.display = 'block';
+            svg.style.margin = '0 auto';
+        }
+    } else {
+        // 行内公式
+        if (svg) {
+            svg.style.display = 'inline-block';
+        }
     }
 
     //output.childNodes[0].setAttribute('data-formula', input.value.trim().replace(/\\/g, '\\\\'));
     output.childNodes[0].setAttribute('data-formula', input.value.trim());
-    sp.setAttribute('style', 'cursor:pointer;');
     sp.appendChild(output.childNodes[0]);
     sp.innerHTML = sp.innerHTML.replace(/<mjx-assistive-mml.+?<\/mjx-assistive-mml>/g, "");
 
@@ -69,14 +95,14 @@ function insertFormula() {
     closeFrame();
 }
 
-$(function() {
+$(function () {
     input.oninput = convert;
     block.onchange = convert;
     insert.onclick = insertFormula;
     document.getElementById('close').onclick = closeFrame;
     document.getElementById('cancel').onclick = closeFrame;
 
-    window.addEventListener('message', function(event) {
+    window.addEventListener('message', function (event) {
         // 接收来自主页面的消息，改变输入框内容
         if (event.data.type) {
             if (event.data.type == 'CHANGE_INPUT') {
@@ -93,20 +119,20 @@ $(function() {
     });
 
     // 防止窗口失去焦点
-    $(window).focusout(function() {
-        setTimeout(function() {
+    $(window).focusout(function () {
+        setTimeout(function () {
             $('#input').focus();
         }, 10);
     });
 
-    $('#input').keydown(function(event) {
+    $('#input').keydown(function (event) {
         // 处理shift+enter
         if (event.keyCode == 13 && event.shiftKey) {
             insertFormula();
         }
     });
 
-    $(document).keydown(function(event) {
+    $(document).keydown(function (event) {
         // 处理esc
         if (event.keyCode == 27) {
             closeFrame();

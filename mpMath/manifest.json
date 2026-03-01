@@ -1,8 +1,13 @@
 {
     "name": "mpMath",
-    "version": "0.2.1",
-    "description": "微信公众号公式插件.",
-    "permissions": ["storage", "declarativeContent", "activeTab", "scripting"],
+    "version": "0.2.4",
+    "description": "微信公众号数学公式插件。基于 latentcat/mpmath 升级完善，遵循 MIT 开源协议。",
+    "permissions": [
+        "storage",
+        "declarativeContent",
+        "activeTab",
+        "scripting"
+    ],
     "background": {
         "background.service_worker": "assets/js/background.js",
         "type": "module"
@@ -21,19 +26,21 @@
         "48": "assets/images/mpMath_logo48.png",
         "128": "assets/images/mpMath_logo128.png"
     },
-    "content_scripts": [{
-        "matches": [
-            "*://mp.weixin.qq.com/*"
-        ],
-        "js": [
-            "assets/js/jquery-3.4.1.min.js",
-            "assets/js/content-script.js"
-        ],
-        "css": [
-            "assets/css/mpMath.css"
-        ],
-        "run_at": "document_end"
-    }],
+    "content_scripts": [
+        {
+            "matches": [
+                "*://mp.weixin.qq.com/*"
+            ],
+            "js": [
+                "assets/js/jquery-3.4.1.min.js",
+                "assets/js/content-script.js"
+            ],
+            "css": [
+                "assets/css/mpMath.css"
+            ],
+            "run_at": "document_end"
+        }
+    ],
     "web_accessible_resources": [
         {
             "resources": [
@@ -41,13 +48,14 @@
                 "assets/css/weui.css",
                 "assets/css/popup.css",
                 "assets/js/jquery-3.4.1.min.js",
-                "assets/js/mpm-inject.js",
                 "assets/js/polyfill.min.js",
                 "assets/js/tex-svg-full.js",
                 "assets/js/popup.js",
                 "pages/popup.html"
             ],
-            "matches": ["*://mp.weixin.qq.com/*"]
+            "matches": [
+                "*://mp.weixin.qq.com/*"
+            ]
         }
     ],
     "manifest_version": 3
